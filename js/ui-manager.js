@@ -1,4 +1,3 @@
-// Hàm chuyển đổi key trạng thái sang Text và Label hiển thị
 function getStatusDisplay(statusKey) {
     const statusMap = {
         'hoat_dong': { text: 'Hoạt động tốt', class: 'badge-hoat_dong' },
@@ -8,7 +7,6 @@ function getStatusDisplay(statusKey) {
     return statusMap[statusKey] || { text: 'Không xác định', class: '' };
 }
 
-// Cập nhật thống kê Dashboard
 export function renderDashboard(equipments) {
     const total = equipments.length;
     const active = equipments.filter(e => e.status === 'hoat_dong').length;
@@ -21,7 +19,6 @@ export function renderDashboard(equipments) {
     document.getElementById('stat-danger').textContent = danger;
 }
 
-// Cập nhật: Vẽ danh sách Card thiết bị ra HTML và gắn sự kiện Card Click
 export function renderEquipmentList(equipments, onEdit, onDelete, onCardClick) {
     const grid = document.getElementById('equipment-grid');
     grid.innerHTML = ''; 
@@ -51,9 +48,7 @@ export function renderEquipmentList(equipments, onEdit, onDelete, onCardClick) {
             </div>
         `;
         
-        // Sự kiện click toàn bộ thẻ để xem Timeline
         card.addEventListener('click', () => {
-            // Xóa class selected của các thẻ khác và thêm vào thẻ hiện tại
             document.querySelectorAll('.equip-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             onCardClick(equip.id);
@@ -62,7 +57,6 @@ export function renderEquipmentList(equipments, onEdit, onDelete, onCardClick) {
         grid.appendChild(card);
     });
 
-    // Gắn sự kiện cho các nút Sửa/Xóa. Dùng e.stopPropagation() để không kích hoạt click thẻ khi ấn nút
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation(); 
@@ -78,12 +72,13 @@ export function renderEquipmentList(equipments, onEdit, onDelete, onCardClick) {
     });
 }
 
-// TÍNH NĂNG MỚI: Vẽ Timeline Lịch sử bảo trì
-export function renderTimeline(equipment) {
+// Vẽ Timeline kết hợp dữ liệu tĩnh (từ form thiết bị) và dữ liệu động (từ sub-collection)
+export function renderTimeline(equipment, dynamicRecords = []) {
     const container = document.getElementById('timeline-container');
+    const btnAddMaint = document.getElementById('btn-add-maint');
     
-    // Nếu không có thiết bị hoặc bị xóa, reset về trạng thái trống
     if (!equipment) {
+        btnAddMaint.classList.add('hidden');
         container.innerHTML = `
             <div class="empty-timeline">
                 <i class="fa-regular fa-hand-pointer"></i>
@@ -92,7 +87,10 @@ export function renderTimeline(equipment) {
         return;
     }
 
-    // Header của Timeline
+    // Hiển thị nút "Thêm Lịch Sử" và gắn ID máy hiện tại
+    btnAddMaint.classList.remove('hidden');
+    btnAddMaint.setAttribute('data-equip-id', equipment.id);
+
     let html = `
         <div class="timeline-header">
             <h3>Lịch Sử Bảo Trì: ${equipment.name}</h3>
@@ -101,30 +99,49 @@ export function renderTimeline(equipment) {
         <div class="timeline-list">
     `;
 
-    // Mốc 1: Ngày lắp đặt
-    if (equipment.installDate) {
-        html += generateTimelineItemNode(equipment.installDate, 'Lắp đặt & Bàn giao', 'Thiết bị bắt đầu được đưa vào sử dụng.', 'fa-truck-medical', 'icon-success');
-    }
+    // Nếu dynamicRecords là null, nghĩa là đang tải dữ liệu
+    if (dynamicRecords === null) {
+        html += `<div style="text-align:center; padding: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu lịch sử...</div>`;
+    } else {
+        // --- 1. Mốc động (từ chức năng thêm mới) ---
+        dynamicRecords.forEach(record => {
+            html += generateTimelineItemNode(
+                record.date, 
+                record.title, 
+                record.notes, 
+                'fa-wrench', 
+                'icon-warning', 
+                record.imageUrl
+            );
+        });
 
-    // Mốc 2: Lịch sử sửa chữa/Ghi chú (Ưu tiên lấy thông tin từ textarea Notes)
-    if (equipment.lastMaint || equipment.notes) {
-        const maintDate = equipment.lastMaint || 'Chưa xác định ngày';
-        const maintDesc = equipment.notes || 'Đã thực hiện bảo dưỡng, không có ghi chú chi tiết.';
-        html += generateTimelineItemNode(maintDate, 'Lịch sử Sửa chữa / Bảo dưỡng', maintDesc, 'fa-wrench', 'icon-warning');
-    }
-
-    // Mốc 3: Lịch bảo dưỡng tiếp theo
-    if (equipment.nextMaint) {
-        html += generateTimelineItemNode(equipment.nextMaint, 'Lịch bảo dưỡng định kỳ tiếp theo', 'Cần kiểm tra tình trạng hoạt động và linh kiện tiêu hao.', 'fa-calendar-check', 'icon-info');
+        // --- 2. Các mốc tĩnh (từ field cũ) ---
+        if (equipment.nextMaint) {
+            html += generateTimelineItemNode(equipment.nextMaint, 'Lịch bảo dưỡng định kỳ tiếp theo', 'Dự kiến kiểm tra tình trạng máy móc.', 'fa-calendar-check', 'icon-info');
+        }
+        if (equipment.lastMaint || equipment.notes) {
+            const maintDate = equipment.lastMaint || 'Chưa xác định ngày';
+            const maintDesc = equipment.notes || 'Bảo dưỡng / Ghi chú chung';
+            html += generateTimelineItemNode(maintDate, 'Ghi chú / Bảo dưỡng tổng quan', maintDesc, 'fa-clipboard-list', 'icon-warning');
+        }
+        if (equipment.installDate) {
+            html += generateTimelineItemNode(equipment.installDate, 'Lắp đặt & Bàn giao', 'Thiết bị bắt đầu được đưa vào sử dụng.', 'fa-truck-medical', 'icon-success');
+        }
     }
 
     html += `</div>`;
     container.innerHTML = html;
 }
 
-// Hàm hỗ trợ tạo chuỗi HTML cho mỗi mốc Timeline
-function generateTimelineItemNode(dateRaw, title, desc, iconClass, colorClass) {
-    const displayDate = formatDate(dateRaw) || dateRaw; // Thử format ngày, nếu không được thì in raw
+function generateTimelineItemNode(dateRaw, title, desc, iconClass, colorClass, imageUrl = null) {
+    const displayDate = formatDate(dateRaw) || dateRaw; 
+    let imageHtml = '';
+    
+    // Nếu có ảnh, render thẻ img
+    if (imageUrl) {
+        imageHtml = `<img src="${imageUrl}" class="timeline-image-preview" alt="Ảnh bảo trì">`;
+    }
+
     return `
         <div class="timeline-item">
             <div class="timeline-icon ${colorClass}"><i class="fa-solid ${iconClass}"></i></div>
@@ -132,12 +149,13 @@ function generateTimelineItemNode(dateRaw, title, desc, iconClass, colorClass) {
                 <span class="timeline-date">${displayDate}</span>
                 <h4>${title}</h4>
                 <p>${desc}</p>
+                ${imageHtml}
             </div>
         </div>
     `;
 }
 
-// Hiển thị và Ẩn Modal
+// Modal thiết bị (Cũ)
 export function toggleModal(show) {
     const modal = document.getElementById('equipment-modal');
     if (show) {
@@ -149,7 +167,21 @@ export function toggleModal(show) {
     }
 }
 
-// Đổ dữ liệu vào Form khi Edit
+// Modal thêm lịch sử bảo trì (Mới)
+export function toggleMaintModal(show, equipId = '') {
+    const modal = document.getElementById('maint-modal');
+    if (show) {
+        document.getElementById('maint-equip-id').value = equipId;
+        
+        // Gợi ý ngày hôm nay làm mặc định
+        document.getElementById('maint-date').value = new Date().toISOString().split('T')[0];
+        modal.classList.remove('hidden');
+    } else {
+        modal.classList.add('hidden');
+        document.getElementById('maint-form').reset();
+    }
+}
+
 export function populateForm(equipment) {
     document.getElementById('equip-id').value = equipment.id;
     document.getElementById('equip-name').value = equipment.name;
@@ -166,12 +198,11 @@ export function populateForm(equipment) {
     document.getElementById('modal-title').innerText = "Cập Nhật Thông Tin Máy";
 }
 
-// Format lại ngày tháng để hiển thị UI (YYYY-MM-DD sang DD/MM/YYYY)
 function formatDate(dateString) {
     if (!dateString || !dateString.includes('-')) return '';
     const parts = dateString.split('-');
     if(parts.length === 3) {
-        return `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY
+        return `${parts[2]}/${parts[1]}/${parts[0]}`; 
     }
     return dateString;
 }

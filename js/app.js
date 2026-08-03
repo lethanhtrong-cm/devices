@@ -1,5 +1,5 @@
 import { fetchEquipments, createEquipment, updateEquipmentData, removeEquipment } from './firestore-api.js';
-import { renderDashboard, renderEquipmentList, toggleModal, populateForm } from './ui-manager.js';
+import { renderDashboard, renderEquipmentList, toggleModal, populateForm, renderTimeline } from './ui-manager.js';
 
 let currentEquipments = [];
 
@@ -13,7 +13,12 @@ async function initApp() {
 async function loadData() {
     currentEquipments = await fetchEquipments();
     renderDashboard(currentEquipments);
-    renderEquipmentList(currentEquipments, handleEditClick, handleDeleteClick);
+    
+    // Truyền thêm hàm xử lý handleCardClick vào List
+    renderEquipmentList(currentEquipments, handleEditClick, handleDeleteClick, handleCardClick);
+    
+    // Reset Timeline nếu dữ liệu reload
+    renderTimeline(null); 
 }
 
 // Thiết lập các sự kiện tương tác
@@ -74,6 +79,14 @@ async function handleFormSubmit(e) {
     }
 }
 
+// Handle: Khi click vào bất kỳ vị trí nào trên thẻ thiết bị (Ngoại trừ nút)
+function handleCardClick(id) {
+    const equip = currentEquipments.find(e => e.id === id);
+    if (equip) {
+        renderTimeline(equip);
+    }
+}
+
 // Handle nút Edit trên từng thẻ máy
 function handleEditClick(id) {
     const equip = currentEquipments.find(e => e.id === id);
@@ -88,7 +101,7 @@ async function handleDeleteClick(id) {
     if (confirm('Bạn có chắc chắn muốn xóa dữ liệu máy này khỏi hệ thống? Hành động này không thể hoàn tác.')) {
         try {
             await removeEquipment(id);
-            await loadData();
+            await loadData(); // Load lại toàn bộ (bao gồm cả reset màn hình timeline bên phải)
         } catch (error) {
             alert('Lỗi khi xóa thiết bị.');
         }

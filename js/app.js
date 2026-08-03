@@ -1,49 +1,52 @@
-import { fetchEquipments, createEquipment, updateEquipmentData, removeEquipment } from './firestore-api.js';
-import { renderDashboard, renderEquipmentList, toggleModal, populateForm, renderTimeline } from './ui-manager.js';
+import { fetchEquipments, createEquipment, updateEquipmentData, removeEquipment, fetchMaintenanceRecords, addMaintenanceRecord } from './firestore-api.js';
+import { renderDashboard, renderEquipmentList, toggleModal, populateForm, renderTimeline, toggleMaintModal } from './ui-manager.js';
 
 let currentEquipments = [];
+let currentSelectedEquipId = null;
 
-// Hàm khởi tạo ứng dụng
 async function initApp() {
     await loadData();
     setupEventListeners();
 }
 
-// Tải dữ liệu từ Firebase và Render lên UI
 async function loadData() {
     currentEquipments = await fetchEquipments();
     renderDashboard(currentEquipments);
-    
-    // Truyền thêm hàm xử lý handleCardClick vào List
     renderEquipmentList(currentEquipments, handleEditClick, handleDeleteClick, handleCardClick);
     
-    // Reset Timeline nếu dữ liệu reload
-    renderTimeline(null); 
+    // Nếu đang có thẻ được chọn, load lại timeline của thẻ đó. Nếu không, reset timeline.
+    if (currentSelectedEquipId) {
+        handleCardClick(currentSelectedEquipId);
+    } else {
+        renderTimeline(null); 
+    }
 }
 
-// Thiết lập các sự kiện tương tác
 function setupEventListeners() {
-    // Mở modal thêm mới
+    /* --- SỰ KIỆN CHO MODAL THIẾT BỊ --- */
     document.getElementById('btn-add-new').addEventListener('click', () => {
         document.getElementById('modal-title').innerText = "Thêm Thiết Bị Mới";
         toggleModal(true);
     });
-
-    // Đóng modal
     document.getElementById('btn-close-modal').addEventListener('click', () => toggleModal(false));
-    
-    // Đóng khi click ra ngoài modal
-    window.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('equipment-modal')) {
-            toggleModal(false);
-        }
-    });
-
-    // Xử lý Submit Form (Add hoặc Edit)
     document.getElementById('equipment-form').addEventListener('submit', handleFormSubmit);
+
+    /* --- SỰ KIỆN CHO MODAL BẢO TRÌ --- */
+    document.getElementById('btn-add-maint').addEventListener('click', (e) => {
+        const equipId = e.currentTarget.getAttribute('data-equip-id');
+        toggleMaintModal(true, equipId);
+    });
+    document.getElementById('btn-close-maint-modal').addEventListener('click', () => toggleMaintModal(false));
+    document.getElementById('maint-form').addEventListener('submit', handleMaintSubmit);
+
+    // Đóng modal khi click ra ngoài (Áp dụng chung)
+    window.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('equipment-modal')) toggleModal(false);
+        if (e.target === document.getElementById('maint-modal')) toggleMaintModal(false);
+    });
 }
 
-// Xử lý logic Submit Form
+// Submit Form Thiết bị
 async function handleFormSubmit(e) {
     e.preventDefault();
     
@@ -63,31 +66,73 @@ async function handleFormSubmit(e) {
 
     try {
         if (id) {
-            // Edit
             await updateEquipmentData(id, formData);
-            alert('Cập nhật thông tin thành công!');
         } else {
-            // Add new
             await createEquipment(formData);
-            alert('Thêm thiết bị mới thành công!');
         }
-        
         toggleModal(false);
-        await loadData(); // Reload UI
+        await loadData();
     } catch (error) {
-        alert('Có lỗi xảy ra, vui lòng thử lại sau.');
+        alert('Có lỗi xảy ra khi lưu thiết bị.');
     }
 }
 
-// Handle: Khi click vào bất kỳ vị trí nào trên thẻ thiết bị (Ngoại trừ nút)
-function handleCardClick(id) {
+// Submit Form Thêm Lịch sử Bảo trì
+async function handleMaintSubmit(e) {
+    e.preventDefault();
+    const btnSubmit = document.getElementById('btn-submit-maint');
+    
+    const equipId = document.getElementById('maint-equip-id').value;
+    const recordData = {
+        date: document.getElementById('maint-date').value,
+        title: document.getElementById('maint-title').value,
+        notes: document.getElementById('maint-notes').value,
+    };
+    const imageInput = document.getElementById('maint-image');
+    const imageFile = imageInput.files.length > 0 ? imageInput.files[0] : null;
+
+    try {
+        // UI Loading State (Bởi vì upload ảnh có thể mất vài giây)
+        const originalText = btnSubmit.innerHTML;
+        btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tải lên...';
+        btnSubmit.disabled = true;
+
+        await addMaintenanceRecord(equipId, recordData, imageFile);
+        
+        // Reset form & UI
+        toggleMaintModal(false);
+        btnSubmit.innerHTML = originalText;
+        btnSubmit.disabled = false;
+        
+        // Reload lại riêng phần Timeline của máy đó
+        handleCardClick(equipId);
+    } catch (error) {
+        console.error(error);
+        alert('Lỗi khi lưu lịch sử. Nếu bạn upload ảnh, hãy chắc chắn Firebase Storage (Rules) của bạn đã được bật.');
+        btnSubmit.innerHTML = '<i class="fa-solid fa-save"></i> Lưu Lịch Sử';
+        btnSubmit.disabled = false;
+    }
+}
+
+// Click vào thẻ Card: Tải & hiển thị Timeline chi tiết
+async function handleCardClick(id) {
+    currentSelectedEquipId = id;
     const equip = currentEquipments.find(e => e.id === id);
+    
     if (equip) {
-        renderTimeline(equip);
+        // Render tạm trạng thái Loading (null) cho history
+        renderTimeline(equip, null); 
+        
+        try {
+            // Lấy dữ liệu động từ sub-collection
+            const dynamicHistory = await fetchMaintenanceRecords(id);
+            renderTimeline(equip, dynamicHistory);
+        } catch (error) {
+            renderTimeline(equip, []); // Nếu lỗi, vẫn render ra form gốc
+        }
     }
 }
 
-// Handle nút Edit trên từng thẻ máy
 function handleEditClick(id) {
     const equip = currentEquipments.find(e => e.id === id);
     if (equip) {
@@ -96,17 +141,16 @@ function handleEditClick(id) {
     }
 }
 
-// Handle nút Xóa trên từng thẻ máy
 async function handleDeleteClick(id) {
     if (confirm('Bạn có chắc chắn muốn xóa dữ liệu máy này khỏi hệ thống? Hành động này không thể hoàn tác.')) {
         try {
             await removeEquipment(id);
-            await loadData(); // Load lại toàn bộ (bao gồm cả reset màn hình timeline bên phải)
+            if (currentSelectedEquipId === id) currentSelectedEquipId = null;
+            await loadData();
         } catch (error) {
             alert('Lỗi khi xóa thiết bị.');
         }
     }
 }
 
-// Khởi chạy App khi DOM đã sẵn sàng
 document.addEventListener('DOMContentLoaded', initApp);

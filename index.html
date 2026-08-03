@@ -48,17 +48,31 @@
             </div>
         </section>
 
-        <!-- Danh sách thiết bị -->
-        <section class="equipment-section">
-            <h2><i class="fa-solid fa-list"></i> Danh Sách Thiết Bị</h2>
-            <div id="equipment-grid" class="equipment-grid">
-                <!-- Các thẻ máy móc sẽ được render vào đây bởi JS -->
-                <div class="loading-text">Đang tải dữ liệu từ máy chủ...</div>
+        <!-- Không gian làm việc chính: Chia 2 cột -->
+        <section class="workspace-layout">
+            <!-- Cột trái: Danh sách thiết bị -->
+            <div class="left-column">
+                <h2 class="section-title"><i class="fa-solid fa-list"></i> Danh Sách Thiết Bị</h2>
+                <div id="equipment-grid" class="equipment-grid">
+                    <div class="loading-text">Đang tải dữ liệu từ máy chủ...</div>
+                </div>
+            </div>
+
+            <!-- Cột phải: Timeline hiển thị chi tiết -->
+            <div class="right-column">
+                <h2 class="section-title"><i class="fa-solid fa-timeline"></i> Lịch Sử Sửa Chữa & Bảo Trì</h2>
+                <div id="timeline-container" class="timeline-container">
+                    <!-- Trạng thái trống (Empty State) -->
+                    <div class="empty-timeline">
+                        <i class="fa-regular fa-hand-pointer"></i>
+                        <p>Nhấp vào một thiết bị ở danh sách bên trái để xem chi tiết lịch sử bảo trì.</p>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
 
-    <!-- Modal Thêm/Sửa Thiết Bị -->
+    <!-- Modal Thêm/Sửa Thiết Bị (Giữ nguyên) -->
     <div id="equipment-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-btn" id="btn-close-modal">&times;</span>
@@ -124,8 +138,7 @@
                     <textarea id="equip-notes" rows="4" placeholder="Nhập chi tiết sửa chữa, người thực hiện, chi phí..."></textarea>
                 </div>
 
-                <!-- Chèn thay thế ngay dưới phần tử <textarea id="equip-notes"> trong file index.html -->
-<button type="submit" id="btn-submit" class="btn btn-primary btn-submit"><i class="fa-solid fa-save"></i> Lưu Thông Tin</button>
+                <button type="submit" id="btn-submit" class="btn btn-primary btn-submit"><i class="fa-solid fa-save"></i> Lưu Thông Tin</button>
             </form>
         </div>
     </div>

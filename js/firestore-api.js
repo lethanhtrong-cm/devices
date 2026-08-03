@@ -8,7 +8,13 @@ import {
     doc 
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+// Import thêm Firebase Storage để upload ảnh
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+
 const COLLECTION_NAME = 'equipments';
+
+// Khởi tạo Storage an toàn từ đối tượng db.app (không cần sửa firebase-config.js)
+const storage = getStorage(db.app);
 
 // Lấy toàn bộ danh sách thiết bị
 export async function fetchEquipments() {
@@ -57,5 +63,56 @@ export async function removeEquipment(id) {
     } catch (error) {
         console.error("Lỗi khi xóa thiết bị: ", error);
         throw error;
+    }
+}
+
+// --- TÍNH NĂNG MỚI: QUẢN LÝ LỊCH SỬ BẢO TRÌ (SUB-COLLECTION & STORAGE) ---
+
+// Thêm một record bảo trì vào sub-collection của thiết bị
+export async function addMaintenanceRecord(equipId, recordData, imageFile) {
+    try {
+        let imageUrl = null;
+        
+        // Nếu có ảnh, tiến hành upload lên Firebase Storage trước
+        if (imageFile) {
+            const fileExtension = imageFile.name.split('.').pop();
+            const fileName = `maint_${Date.now()}.${fileExtension}`;
+            const storageRef = ref(storage, `maintenance_images/${equipId}/${fileName}`);
+            
+            await uploadBytes(storageRef, imageFile);
+            imageUrl = await getDownloadURL(storageRef);
+        }
+
+        // Tạo Document trong sub-collection "maintenance_history"
+        const maintCol = collection(db, COLLECTION_NAME, equipId, 'maintenance_history');
+        const newRecord = {
+            ...recordData,
+            imageUrl: imageUrl,
+            createdAt: new Date().toISOString()
+        };
+        
+        await addDoc(maintCol, newRecord);
+        return true;
+    } catch (error) {
+        console.error("Lỗi khi lưu lịch sử bảo trì: ", error);
+        throw error;
+    }
+}
+
+// Lấy danh sách lịch sử bảo trì của một thiết bị
+export async function fetchMaintenanceRecords(equipId) {
+    try {
+        const maintCol = collection(db, COLLECTION_NAME, equipId, 'maintenance_history');
+        const querySnapshot = await getDocs(maintCol);
+        const records = [];
+        querySnapshot.forEach(doc => {
+            records.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Sắp xếp theo ngày giảm dần (Mới nhất lên đầu)
+        return records.sort((a, b) => new Date(b.date) - new Date(a.date));
+    } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu lịch sử bảo trì: ", error);
+        return [];
     }
 }

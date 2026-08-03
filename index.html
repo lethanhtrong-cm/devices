@@ -60,7 +60,11 @@
 
             <!-- Cột phải: Timeline hiển thị chi tiết -->
             <div class="right-column">
-                <h2 class="section-title"><i class="fa-solid fa-timeline"></i> Lịch Sử Sửa Chữa & Bảo Trì</h2>
+                <div class="timeline-header-actions">
+                    <h2 class="section-title" style="margin-bottom: 0;"><i class="fa-solid fa-timeline"></i> Lịch Sử Sửa Chữa & Bảo Trì</h2>
+                    <button id="btn-add-maint" class="btn btn-primary hidden"><i class="fa-solid fa-plus"></i> Thêm Lịch Sử</button>
+                </div>
+                
                 <div id="timeline-container" class="timeline-container">
                     <!-- Trạng thái trống (Empty State) -->
                     <div class="empty-timeline">
@@ -72,7 +76,7 @@
         </section>
     </main>
 
-    <!-- Modal Thêm/Sửa Thiết Bị (Giữ nguyên) -->
+    <!-- Modal Thêm/Sửa Thiết Bị Cũ -->
     <div id="equipment-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-btn" id="btn-close-modal">&times;</span>
@@ -134,11 +138,44 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="equip-notes">Ghi chú / Lịch sử sửa chữa</label>
-                    <textarea id="equip-notes" rows="4" placeholder="Nhập chi tiết sửa chữa, người thực hiện, chi phí..."></textarea>
+                    <label for="equip-notes">Ghi chú (Tổng quan)</label>
+                    <textarea id="equip-notes" rows="3" placeholder="Ghi chú tổng quan về tình trạng máy..."></textarea>
                 </div>
 
                 <button type="submit" id="btn-submit" class="btn btn-primary btn-submit"><i class="fa-solid fa-save"></i> Lưu Thông Tin</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Thêm Lịch Sử Bảo Trì Mới -->
+    <div id="maint-modal" class="modal hidden">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-btn" id="btn-close-maint-modal">&times;</span>
+            <h2>Thêm Lịch Sử Sửa Chữa</h2>
+            <form id="maint-form">
+                <input type="hidden" id="maint-equip-id">
+                
+                <div class="form-group">
+                    <label for="maint-date">Ngày thực hiện</label>
+                    <input type="date" id="maint-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="maint-title">Tên công việc / Sự cố</label>
+                    <input type="text" id="maint-title" placeholder="VD: Thay thế bóng X-Quang, Bảo dưỡng định kỳ..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="maint-notes">Chi tiết công việc & Chi phí</label>
+                    <textarea id="maint-notes" rows="4" placeholder="Mô tả chi tiết những việc đã làm, tên người thực hiện, linh kiện tiêu hao..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="maint-image">Đính kèm hình ảnh (Tùy chọn)</label>
+                    <input type="file" id="maint-image" accept="image/*">
+                </div>
+
+                <button type="submit" id="btn-submit-maint" class="btn btn-primary btn-submit"><i class="fa-solid fa-save"></i> Lưu Lịch Sử</button>
             </form>
         </div>
     </div>

@@ -109,8 +109,8 @@ body {
 /* --- TWO COLUMN WORKSPACE LAYOUT CÂN ĐỐI LẠI --- */
 .workspace-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Chia đôi màn hình 50-50 để ko bị lọt thỏm */
-    gap: 40px; /* Khoảng cách rộng rãi giữa 2 cột */
+    grid-template-columns: 3.5fr 6.5fr; /* Thu nhỏ cột trái (35%), mở rộng không gian cột phải (65%) */
+    gap: 40px; 
     margin-bottom: 50px;
     align-items: start;
 }

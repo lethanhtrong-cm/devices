@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Thiết Bị Y Tế - Khoa CĐHA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="container header-content">
+            <h1><i class="fa-solid fa-notes-medical"></i> Quản Lý Thiết Bị Vật Tư Y Tế</h1>
+            <button id="btn-add-new" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Thiết Bị Mới</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Dashboard Thống Kê -->
+        <section class="dashboard">
+            <div class="stat-card total">
+                <div class="stat-icon"><i class="fa-solid fa-microchip"></i></div>
+                <div class="stat-info">
+                    <h3>Tổng số máy</h3>
+                    <p id="stat-total">0</p>
+                </div>
+            </div>
+            <div class="stat-card active">
+                <div class="stat-icon"><i class="fa-solid fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>Hoạt động tốt</h3>
+                    <p id="stat-active">0</p>
+                </div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="stat-info">
+                    <h3>Cần kiểm tra</h3>
+                    <p id="stat-warning">0</p>
+                </div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-icon"><i class="fa-solid fa-wrench"></i></div>
+                <div class="stat-info">
+                    <h3>Đang hỏng hóc</h3>
+                    <p id="stat-danger">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Danh sách thiết bị -->
+        <section class="equipment-section">
+            <h2><i class="fa-solid fa-list"></i> Danh Sách Thiết Bị</h2>
+            <div id="equipment-grid" class="equipment-grid">
+                <!-- Các thẻ máy móc sẽ được render vào đây bởi JS -->
+                <div class="loading-text">Đang tải dữ liệu từ máy chủ...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Thêm/Sửa Thiết Bị -->
+    <div id="equipment-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" id="btn-close-modal">&times;</span>
+            <h2 id="modal-title">Thêm Thiết Bị Mới</h2>
+            <form id="equipment-form">
+                <input type="hidden" id="equip-id">
+                
+                <div class="form-group">
+                    <label for="equip-name">Tên thiết bị (VD: Máy CT Scanner 128 dãy)</label>
+                    <input type="text" id="equip-name" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="equip-model">Model</label>
+                        <input type="text" id="equip-model" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="equip-brand">Hãng sản xuất</label>
+                        <input type="text" id="equip-brand" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="equip-serial">Số Serial</label>
+                        <input type="text" id="equip-serial" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="equip-year">Năm sản xuất</label>
+                        <input type="number" id="equip-year" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="equip-install">Ngày lắp đặt</label>
+                        <input type="date" id="equip-install" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="equip-status">Tình trạng hiện tại</label>
+                        <select id="equip-status" required>
+                            <option value="hoat_dong">Hoạt động tốt</option>
+                            <option value="kiem_tra">Cần kiểm tra/Bảo dưỡng</option>
+                            <option value="hong_hoc">Đang hỏng hóc</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="equip-last-maint">Bảo dưỡng gần nhất</label>
+                        <input type="date" id="equip-last-maint">
+                    </div>
+                    <div class="form-group">
+                        <label for="equip-next-maint">Lịch bảo dưỡng tiếp theo</label>
+                        <input type="date" id="equip-next-maint">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="equip-notes">Ghi chú / Lịch sử sửa chữa</label>
+                    <textarea id="equip-notes" rows="4" placeholder="Nhập chi tiết sửa chữa, người thực hiện, chi phí..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-submit"><i class="fa-solid fa-save"></i> Lưu Thông Tin</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

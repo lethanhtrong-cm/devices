@@ -124,7 +124,7 @@ body {
 .timeline-content { background-color: var(--bg-color); padding: 15px 20px; border-radius: var(--radius-md); position: relative; }
 .timeline-content::before { content: ''; position: absolute; top: 10px; left: -8px; border-width: 8px 8px 8px 0; border-style: solid; border-color: transparent var(--bg-color) transparent transparent; }
 .timeline-date { display: inline-block; font-size: 0.8rem; font-weight: bold; color: var(--primary-color); margin-bottom: 5px; background-color: rgba(0, 119, 182, 0.1); padding: 2px 8px; border-radius: 4px; }
-.timeline-content h4 { font-size: 1.05rem; margin-bottom: 5px; color: var(--text-main); padding-right: 60px; /* Nhường chỗ cho nút sửa/xóa */ }
+.timeline-content h4 { font-size: 1.05rem; margin-bottom: 5px; color: var(--text-main); padding-right: 60px; }
 .timeline-content p { font-size: 0.9rem; color: var(--text-muted); white-space: pre-line; }
 .timeline-image-preview { max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 15px; }
 
@@ -135,9 +135,9 @@ body {
 .timeline-actions button.btn-delete-maint:hover { color: var(--status-danger); }
 
 /* Modal & Forms */
-.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 1; transition: opacity 0.3s; }
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 1; transition: opacity 0.3s; padding: 20px; }
 .modal.hidden { opacity: 0; pointer-events: none; }
-.modal-content { background-color: var(--card-bg); padding: 30px; border-radius: var(--radius-lg); width: 100%; max-width: 650px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; max-height: 90vh; overflow-y: auto; }
+.modal-content { background-color: var(--card-bg); padding: 30px; border-radius: var(--radius-lg); width: 100%; max-width: 650px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; max-height: 90vh; overflow-y: auto; margin: auto; }
 .close-btn { position: absolute; top: 20px; right: 25px; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
 .close-btn:hover { color: var(--status-danger); }
 form { margin-top: 20px; }
@@ -150,13 +150,46 @@ input[type="file"] { padding: 8px; font-size: 0.9rem; }
 input:focus, select:focus, textarea:focus { border-color: var(--primary-light); }
 .btn-submit { width: 100%; justify-content: center; padding: 12px; font-size: 1.1rem; margin-top: 10px; }
 
+/* TỐI ƯU MOBILE (MEDIA QUERIES) */
 @media (max-width: 1100px) {
     .workspace-layout { grid-template-columns: 1fr; }
     .right-column { position: static; margin-top: 20px; }
     .equipment-grid { max-height: none; overflow-y: visible; }
     .timeline-container { max-height: none; }
 }
+
 @media (max-width: 768px) {
+    /* Chuyển header thành dọc thay vì ngang nếu không đủ chỗ */
+    .header-content { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .header-actions { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+    
     .form-row { flex-direction: column; gap: 0; }
+    .dashboard { grid-template-columns: 1fr 1fr; } /* 2 thẻ 1 hàng trên Tablet */
+}
+
+@media (max-width: 576px) {
+    /* Màn hình điện thoại nhỏ */
+    .container { padding: 0 12px; }
+    .app-header { padding: 15px 0; }
     .header-content h1 { font-size: 1.2rem; }
+    
+    .dashboard { grid-template-columns: 1fr; } /* 1 thẻ 1 hàng trên Mobile */
+    
+    .equip-card { padding: 15px; }
+    .equip-card h3 { font-size: 1.1rem; }
+    
+    /* Gộp bảng chi tiết thành 1 cột */
+    .machine-details-panel { grid-template-columns: 1fr; gap: 10px; padding: 15px; }
+    
+    .timeline-container { padding: 20px 15px; }
+    .timeline-content { padding: 15px; }
+    
+    .modal { padding: 10px; }
+    .modal-content { padding: 20px; width: 100%; }
+    
+    .btn { padding: 8px 12px; font-size: 0.85rem; }
+    
+    /* Ẩn tên User, chỉ giữ Avatar để gọn Header */
+    .user-info span { display: none; }
+    .user-info { padding: 5px; }
 }

@@ -77,6 +77,37 @@ async function handleFormSubmit(e) {
     }
 }
 
+// Hàm hỗ trợ nén ảnh và chuyển thành Base64 để lưu vào Firestore (tránh giới hạn 1MB)
+function compressImageToBase64(file, maxWidth = 800, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Trả về chuỗi Base64 định dạng JPEG nén
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = (error) => reject(error);
+        };
+        reader.onerror = (error) => reject(error);
+    });
+}
+
 // Submit Form Thêm Lịch sử Bảo trì
 async function handleMaintSubmit(e) {
     e.preventDefault();
@@ -88,16 +119,21 @@ async function handleMaintSubmit(e) {
         title: document.getElementById('maint-title').value,
         notes: document.getElementById('maint-notes').value,
     };
+    
     const imageInput = document.getElementById('maint-image');
-    const imageFile = imageInput.files.length > 0 ? imageInput.files[0] : null;
+    let imageBase64 = null;
 
     try {
-        // UI Loading State (Bởi vì upload ảnh có thể mất vài giây)
         const originalText = btnSubmit.innerHTML;
-        btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tải lên...';
+        btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
         btnSubmit.disabled = true;
 
-        await addMaintenanceRecord(equipId, recordData, imageFile);
+        // Nếu có chọn ảnh, tiến hành nén ảnh trước khi lưu
+        if (imageInput.files.length > 0) {
+            imageBase64 = await compressImageToBase64(imageInput.files[0]);
+        }
+
+        await addMaintenanceRecord(equipId, recordData, imageBase64);
         
         // Reset form & UI
         toggleMaintModal(false);
@@ -108,7 +144,7 @@ async function handleMaintSubmit(e) {
         handleCardClick(equipId);
     } catch (error) {
         console.error(error);
-        alert('Lỗi khi lưu lịch sử. Nếu bạn upload ảnh, hãy chắc chắn Firebase Storage (Rules) của bạn đã được bật.');
+        alert('Lỗi khi lưu lịch sử. Vui lòng kiểm tra lại kết nối mạng.');
         btnSubmit.innerHTML = '<i class="fa-solid fa-save"></i> Lưu Lịch Sử';
         btnSubmit.disabled = false;
     }

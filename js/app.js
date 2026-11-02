@@ -2,11 +2,11 @@ import { fetchEquipments, createEquipment, updateEquipmentData, removeEquipment,
 import { renderDashboard, renderEquipmentList, toggleModal, populateForm, renderTimeline, toggleMaintModal, updateAuthUI } from './ui-manager.js';
 
 let currentEquipments = [];
-let currentDynamicHistory = []; // Lưu trữ mảng lịch sử của máy đang chọn
+let currentDynamicHistory = [];
 let currentSelectedEquipId = null;
 let isAppAdmin = false;
 
-const ADMIN_EMAILS = ['thanhtrong.yds@gmail.com']; // Đã áp dụng email của bạn
+const ADMIN_EMAILS = ['phanvantruong@gmail.com']; 
 
 function initApp() {
     setupEventListeners();
@@ -55,38 +55,52 @@ function setupEventListeners() {
 
     document.getElementById('btn-add-maint').addEventListener('click', (e) => {
         const equipId = e.currentTarget.getAttribute('data-equip-id');
-        toggleMaintModal(true, equipId); // Chế độ Thêm mới
+        toggleMaintModal(true, equipId);
     });
     document.getElementById('btn-close-maint-modal').addEventListener('click', () => toggleMaintModal(false));
     document.getElementById('maint-form').addEventListener('submit', handleMaintSubmit);
 
-    // Sự kiện ấn nút "Xóa ảnh này" bên trong Modal
     document.getElementById('btn-remove-maint-image').addEventListener('click', () => {
-        document.getElementById('maint-existing-image').value = ''; // Xóa URL cũ
-        document.getElementById('maint-current-image-container').classList.add('hidden'); // Ẩn giao diện
+        document.getElementById('maint-existing-image').value = ''; 
+        document.getElementById('maint-current-image-container').classList.add('hidden'); 
     });
 
-    // Event Delegation: Bắt click vào nút Sửa/Xóa bên trong Timeline
+    // EVENT DELEGATION: Bắt click trong Timeline (Bao gồm Sửa, Xóa và Phóng to ảnh)
     document.getElementById('timeline-container').addEventListener('click', (e) => {
         const editBtn = e.target.closest('.btn-edit-maint');
         const deleteBtn = e.target.closest('.btn-delete-maint');
+        const imageTarget = e.target.closest('.timeline-image-preview'); // Click vào ảnh
         
+        // Mở ảnh phóng to
+        if (imageTarget) {
+            document.getElementById('zoomed-image').src = imageTarget.src;
+            document.getElementById('image-modal').classList.remove('hidden');
+        }
+
+        // Logic Admin Edit
         if (editBtn && isAppAdmin) {
             const recordId = editBtn.getAttribute('data-id');
             const recordToEdit = currentDynamicHistory.find(r => r.id === recordId);
-            if (recordToEdit) {
-                toggleMaintModal(true, currentSelectedEquipId, recordToEdit); // Chế độ Sửa
-            }
+            if (recordToEdit) { toggleMaintModal(true, currentSelectedEquipId, recordToEdit); }
         }
+        
+        // Logic Admin Delete
         if (deleteBtn && isAppAdmin) {
             const recordId = deleteBtn.getAttribute('data-id');
             handleDeleteMaintRecord(currentSelectedEquipId, recordId);
         }
     });
 
+    // Nút đóng ảnh phóng to
+    document.getElementById('btn-close-image').addEventListener('click', () => {
+        document.getElementById('image-modal').classList.add('hidden');
+    });
+
+    // Click ra ngoài khoảng trống để đóng tất cả các Modals
     window.addEventListener('click', (e) => {
         if (e.target === document.getElementById('equipment-modal')) toggleModal(false);
         if (e.target === document.getElementById('maint-modal')) toggleMaintModal(false);
+        if (e.target === document.getElementById('image-modal')) document.getElementById('image-modal').classList.add('hidden');
     });
 }
 
@@ -135,7 +149,7 @@ async function handleMaintSubmit(e) {
     e.preventDefault();
     const btnSubmit = document.getElementById('btn-submit-maint');
     const equipId = document.getElementById('maint-equip-id').value;
-    const recordId = document.getElementById('maint-record-id').value; // Có data = Đang Edit
+    const recordId = document.getElementById('maint-record-id').value;
     const keepImage = document.getElementById('maint-existing-image').value !== '';
     
     const recordData = {
@@ -156,10 +170,8 @@ async function handleMaintSubmit(e) {
         }
 
         if (recordId) {
-            // Cập nhật (Chỉ Admin mới lấy được form có ID này)
             await updateMaintenanceRecord(equipId, recordId, recordData, imageBase64, keepImage);
         } else {
-            // Thêm mới
             await addMaintenanceRecord(equipId, recordData, imageBase64);
         }
         
@@ -180,7 +192,7 @@ async function handleDeleteMaintRecord(equipId, recordId) {
     if (confirm("Bạn có chắc muốn xóa lịch sử bảo trì này? Không thể hoàn tác.")) {
         try {
             await deleteMaintenanceRecord(equipId, recordId);
-            handleCardClick(equipId); // Tải lại dòng thời gian
+            handleCardClick(equipId); 
         } catch (error) {
             alert('Lỗi khi xóa lịch sử bảo trì.');
         }
@@ -220,3 +232,4 @@ async function handleDeleteClick(id) {
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
+```<FollowUp> Bạn kiểm tra thử tính năng phóng to ảnh (trên cả PC và điện thoại) xem độ phân giải ảnh hiển thị đã đủ nét và dễ xem chưa nhé? </FollowUp>

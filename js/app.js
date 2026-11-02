@@ -6,7 +6,7 @@ let currentDynamicHistory = []; // Lưu trữ mảng lịch sử của máy đan
 let currentSelectedEquipId = null;
 let isAppAdmin = false;
 
-const ADMIN_EMAILS = ['phanvantruong@gmail.com']; // Đã áp dụng email của bạn
+const ADMIN_EMAILS = ['thanhtrong.yds@gmail.com']; // Đã áp dụng email của bạn
 
 function initApp() {
     setupEventListeners();

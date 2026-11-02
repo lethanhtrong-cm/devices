@@ -67,8 +67,14 @@ body { background-color: var(--bg-color); color: var(--text-main); line-height: 
 .workspace-layout { display: grid; grid-template-columns: 3.5fr 6.5fr; gap: 40px; margin-bottom: 50px; align-items: start; }
 .section-title { margin-bottom: 20px; color: var(--primary-color); font-size: 1.25rem; }
 
+/* Tabs Phân Nhóm Thiết Bị */
+.equipment-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn { padding: 6px 15px; border: 1px solid var(--border-color); background: var(--card-bg); border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); transition: var(--transition); }
+.tab-btn:hover { border-color: var(--primary-light); color: var(--primary-color); }
+.tab-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+
 /* Equipment Grid */
-.equipment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; max-height: 80vh; overflow-y: auto; padding-right: 10px; padding-bottom: 15px; }
+.equipment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; max-height: 70vh; overflow-y: auto; padding-right: 10px; padding-bottom: 15px; }
 .equipment-grid::-webkit-scrollbar, .modal-content::-webkit-scrollbar, .timeline-container::-webkit-scrollbar { width: 6px; }
 .equipment-grid::-webkit-scrollbar-track, .modal-content::-webkit-scrollbar-track, .timeline-container::-webkit-scrollbar-track { background: transparent; }
 .equipment-grid::-webkit-scrollbar-thumb, .modal-content::-webkit-scrollbar-thumb, .timeline-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -123,17 +129,13 @@ body { background-color: var(--bg-color); color: var(--text-main); line-height: 
 .timeline-content h4 { font-size: 1.05rem; margin-bottom: 5px; color: var(--text-main); padding-right: 60px; }
 .timeline-content p { font-size: 0.9rem; color: var(--text-muted); white-space: pre-line; }
 
-/* CSS cho Image Phóng To */
-.timeline-image-preview { 
-    max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 15px; 
-    cursor: zoom-in; /* Báo hiệu người dùng có thể click phóng to */
-    transition: transform 0.2s, box-shadow 0.2s;
-}
+/* Image Phóng To */
+.timeline-image-preview { max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 15px; cursor: zoom-in; transition: transform 0.2s, box-shadow 0.2s; }
 .timeline-image-preview:hover { transform: scale(1.02); box-shadow: var(--shadow-soft); }
 .zoomed-image-style { max-width: 95%; max-height: 90vh; margin: auto; display: block; border-radius: 8px; object-fit: contain; }
 #btn-close-image:hover { color: var(--status-danger) !important; }
 
-/* Nút Action của Admin trong Timeline */
+/* Nút Action Admin */
 .timeline-actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
 .timeline-actions button { background: transparent; border: none; cursor: pointer; color: var(--text-muted); font-size: 1rem; transition: color 0.2s; padding: 5px; }
 .timeline-actions button:hover { color: var(--primary-color); }
@@ -155,7 +157,7 @@ input[type="file"] { padding: 8px; font-size: 0.9rem; }
 input:focus, select:focus, textarea:focus { border-color: var(--primary-light); }
 .btn-submit { width: 100%; justify-content: center; padding: 12px; font-size: 1.1rem; margin-top: 10px; }
 
-/* TỐI ƯU MOBILE (MEDIA QUERIES) */
+/* MOBILE RESPONSIVE */
 @media (max-width: 1100px) {
     .workspace-layout { grid-template-columns: 1fr; }
     .right-column { position: static; margin-top: 20px; }
@@ -183,4 +185,6 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary-light); 
     .btn { padding: 8px 12px; font-size: 0.85rem; }
     .user-info span { display: none; }
     .user-info { padding: 5px; }
+    .equipment-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; }
+    .tab-btn { white-space: nowrap; }
 }

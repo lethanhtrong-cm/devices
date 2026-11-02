@@ -31,14 +31,13 @@ body {
     line-height: 1.6;
 }
 
-/* MỞ RỘNG MÀN HÌNH */
 .container {
     max-width: 95%;
     margin: 0 auto;
     padding: 0 20px;
 }
 
-/* Header */
+/* Header & Auth UI */
 .app-header {
     background-color: var(--card-bg);
     box-shadow: var(--shadow-soft);
@@ -59,6 +58,34 @@ body {
     font-size: 1.5rem;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--bg-color);
+    padding: 5px 15px 5px 5px;
+    border-radius: 30px;
+}
+
+.user-info img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-info span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
 .btn {
     padding: 10px 20px;
     border: none;
@@ -75,8 +102,24 @@ body {
 
 .btn-primary { background-color: var(--primary-color); color: white; }
 .btn-primary:hover:not(:disabled) { background-color: var(--primary-light); transform: translateY(-2px); }
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+.btn-outline:hover { background-color: var(--border-color); }
+
 .btn-edit { background-color: var(--status-warning); color: #fff; }
 .btn-delete { background-color: var(--status-danger); color: #fff; }
+
+#btn-logout {
+    padding: 5px 10px;
+    border: none;
+    color: var(--status-danger);
+    background: transparent;
+}
+#btn-logout:hover { background-color: rgba(231, 111, 81, 0.1); }
 
 .hidden { display: none !important; }
 
@@ -106,7 +149,7 @@ body {
 .stat-info h3 { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; }
 .stat-info p { font-size: 2rem; font-weight: bold; color: var(--text-main); }
 
-/* --- TWO COLUMN WORKSPACE LAYOUT CÂN ĐỐI LẠI --- */
+/* Workspace Layout */
 .workspace-layout {
     display: grid;
     grid-template-columns: 3.5fr 6.5fr; 
@@ -115,13 +158,9 @@ body {
     align-items: start;
 }
 
-.section-title {
-    margin-bottom: 20px;
-    color: var(--primary-color);
-    font-size: 1.25rem;
-}
+.section-title { margin-bottom: 20px; color: var(--primary-color); font-size: 1.25rem; }
 
-/* Cột trái: Equipment Grid */
+/* Equipment Grid */
 .equipment-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -132,7 +171,6 @@ body {
     padding-bottom: 15px;
 }
 
-/* Custom Scrollbar */
 .equipment-grid::-webkit-scrollbar, .modal-content::-webkit-scrollbar { width: 6px; }
 .equipment-grid::-webkit-scrollbar-track, .modal-content::-webkit-scrollbar-track { background: transparent; }
 .equipment-grid::-webkit-scrollbar-thumb, .modal-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -152,14 +190,8 @@ body {
 .equip-card.selected { border-color: var(--primary-color); background-color: #f0f8ff; }
 
 .equip-status-badge {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: white;
+    position: absolute; top: 20px; right: 20px; padding: 5px 12px;
+    border-radius: 20px; font-size: 0.8rem; font-weight: bold; color: white;
 }
 
 .badge-hoat_dong { background-color: var(--status-good); }
@@ -173,31 +205,16 @@ body {
 .equip-details li { padding: 6px 0; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; }
 .equip-details li:last-child { border-bottom: none; }
 .equip-details strong { color: var(--text-muted); }
-
-.card-actions { display: flex; gap: 10px; }
+.card-actions { display: flex; gap: 10px; margin-top: 15px;}
 .card-actions .btn { flex: 1; justify-content: center; z-index: 2; position: relative;}
 
-/* --- Cột phải: Timeline UI --- */
-.right-column {
-    position: sticky;
-    top: 90px;
-}
-
-.timeline-header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
+/* Timeline UI */
+.right-column { position: sticky; top: 90px; }
+.timeline-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 
 .timeline-container {
-    background: var(--card-bg);
-    border-radius: var(--radius-lg);
-    padding: 30px;
-    box-shadow: var(--shadow-soft);
-    min-height: 400px;
-    max-height: 75vh;
-    overflow-y: auto;
+    background: var(--card-bg); border-radius: var(--radius-lg); padding: 30px;
+    box-shadow: var(--shadow-soft); min-height: 400px; max-height: 75vh; overflow-y: auto;
 }
 .timeline-container::-webkit-scrollbar { width: 6px; }
 .timeline-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -211,41 +228,18 @@ body {
 .timeline-header { padding-bottom: 5px; margin-bottom: 20px; }
 .timeline-header h3 { color: var(--primary-color); font-size: 1.3rem; }
 
-/* CSS Mới cho Bảng thông tin chi tiết thiết bị */
 .machine-details-panel {
-    background-color: var(--bg-color);
-    border-radius: var(--radius-md);
-    padding: 20px;
-    margin-top: 15px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px 25px;
-    border: 1px solid var(--border-color);
+    background-color: var(--bg-color); border-radius: var(--radius-md); padding: 20px;
+    margin-top: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px 25px; border: 1px solid var(--border-color);
 }
-
-.info-group span {
-    display: block;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 4px;
-}
-
-.info-group strong {
-    display: block;
-    font-size: 1.05rem;
-    color: var(--text-main);
-    word-break: break-word;
-}
+.info-group span { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
+.info-group strong { display: block; font-size: 1.05rem; color: var(--text-main); word-break: break-word; }
 
 .timeline-title-sub {
-    color: var(--primary-color);
-    font-size: 1.15rem;
-    margin-top: 10px;
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    border-bottom: 2px dashed var(--border-color);
+    color: var(--primary-color); font-size: 1.15rem; margin-top: 10px; margin-bottom: 25px;
+    padding-bottom: 10px; border-bottom: 2px dashed var(--border-color);
 }
-/* Hết CSS Mới */
 
 .timeline-list { position: relative; padding-left: 30px; }
 .timeline-list::before { content: ''; position: absolute; top: 0; left: 11px; width: 2px; height: 100%; background-color: var(--border-color); }
@@ -291,14 +285,12 @@ input[type="file"] { padding: 8px; font-size: 0.9rem; }
 input:focus, select:focus, textarea:focus { border-color: var(--primary-light); }
 .btn-submit { width: 100%; justify-content: center; padding: 12px; font-size: 1.1rem; margin-top: 10px; }
 
-/* Responsive Grid */
 @media (max-width: 1100px) {
     .workspace-layout { grid-template-columns: 1fr; }
     .right-column { position: static; margin-top: 20px; }
     .equipment-grid { max-height: none; overflow-y: visible; }
     .timeline-container { max-height: none; }
 }
-
 @media (max-width: 768px) {
     .form-row { flex-direction: column; gap: 0; }
     .header-content h1 { font-size: 1.2rem; }

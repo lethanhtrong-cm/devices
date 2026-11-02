@@ -8,17 +8,14 @@ import {
     doc 
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// HỖ TRỢ ĐĂNG NHẬP GOOGLE AUTHENTICATION
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const COLLECTION_NAME = 'equipments';
 
-// Khởi tạo Firebase Auth từ app hiện tại
 export const auth = getAuth(db.app);
 export const provider = new GoogleAuthProvider();
 export { signInWithPopup, signOut, onAuthStateChanged };
 
-// Lấy toàn bộ danh sách thiết bị
 export async function fetchEquipments() {
     try {
         const querySnapshot = await getDocs(collection(db, COLLECTION_NAME));
@@ -33,7 +30,6 @@ export async function fetchEquipments() {
     }
 }
 
-// Thêm thiết bị mới
 export async function createEquipment(equipmentData) {
     try {
         const docRef = await addDoc(collection(db, COLLECTION_NAME), equipmentData);
@@ -44,7 +40,6 @@ export async function createEquipment(equipmentData) {
     }
 }
 
-// Cập nhật thông tin thiết bị
 export async function updateEquipmentData(id, equipmentData) {
     try {
         const equipmentRef = doc(db, COLLECTION_NAME, id);
@@ -56,7 +51,6 @@ export async function updateEquipmentData(id, equipmentData) {
     }
 }
 
-// Xóa thiết bị
 export async function removeEquipment(id) {
     try {
         const equipmentRef = doc(db, COLLECTION_NAME, id);
@@ -68,7 +62,8 @@ export async function removeEquipment(id) {
     }
 }
 
-// Thêm một record bảo trì vào sub-collection của thiết bị
+// --- QUẢN LÝ LỊCH SỬ BẢO TRÌ ---
+
 export async function addMaintenanceRecord(equipId, recordData, imageBase64) {
     try {
         const maintCol = collection(db, COLLECTION_NAME, equipId, 'maintenance_history');
@@ -77,7 +72,6 @@ export async function addMaintenanceRecord(equipId, recordData, imageBase64) {
             imageUrl: imageBase64 || null, 
             createdAt: new Date().toISOString()
         };
-        
         await addDoc(maintCol, newRecord);
         return true;
     } catch (error) {
@@ -86,7 +80,6 @@ export async function addMaintenanceRecord(equipId, recordData, imageBase64) {
     }
 }
 
-// Lấy danh sách lịch sử bảo trì của một thiết bị
 export async function fetchMaintenanceRecords(equipId) {
     try {
         const maintCol = collection(db, COLLECTION_NAME, equipId, 'maintenance_history');
@@ -95,10 +88,39 @@ export async function fetchMaintenanceRecords(equipId) {
         querySnapshot.forEach(doc => {
             records.push({ id: doc.id, ...doc.data() });
         });
-        
         return records.sort((a, b) => new Date(b.date) - new Date(a.date));
     } catch (error) {
         console.error("Lỗi khi lấy dữ liệu lịch sử bảo trì: ", error);
         return [];
+    }
+}
+
+export async function updateMaintenanceRecord(equipId, recordId, recordData, imageBase64, keepExistingImage) {
+    try {
+        const recordRef = doc(db, COLLECTION_NAME, equipId, 'maintenance_history', recordId);
+        const updateData = { ...recordData };
+
+        if (imageBase64 !== null) {
+            updateData.imageUrl = imageBase64; // Đổi ảnh mới
+        } else if (!keepExistingImage) {
+            updateData.imageUrl = null; // Admin đã chủ động xóa ảnh
+        }
+        
+        await updateDoc(recordRef, updateData);
+        return true;
+    } catch (error) {
+        console.error("Lỗi khi cập nhật lịch sử bảo trì: ", error);
+        throw error;
+    }
+}
+
+export async function deleteMaintenanceRecord(equipId, recordId) {
+    try {
+        const recordRef = doc(db, COLLECTION_NAME, equipId, 'maintenance_history', recordId);
+        await deleteDoc(recordRef);
+        return true;
+    } catch (error) {
+        console.error("Lỗi khi xóa lịch sử bảo trì: ", error);
+        throw error;
     }
 }

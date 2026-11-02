@@ -7,7 +7,7 @@ let currentSelectedEquipId = null;
 let isAppAdmin = false;
 
 // BẢO MẬT ADMIN: ĐIỀN EMAIL CỦA BẠN VÀO ĐÂY ĐỂ TRÁNH BỊ NGƯỜI KHÁC SỬA XÓA MÁY. 
-const ADMIN_EMAILS = ['phanvantruong@gmail.com']; 
+const ADMIN_EMAILS = ['thanhtrong.yds@gmail.com']; 
 
 function initApp() {
     setupEventListeners();

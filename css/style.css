@@ -33,7 +33,7 @@ body {
 
 /* MỞ RỘNG MÀN HÌNH */
 .container {
-    max-width: 95%; /* Mở rộng chiếm 95% chiều rộng màn hình */
+    max-width: 95%;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -109,7 +109,7 @@ body {
 /* --- TWO COLUMN WORKSPACE LAYOUT CÂN ĐỐI LẠI --- */
 .workspace-layout {
     display: grid;
-    grid-template-columns: 3.5fr 6.5fr; /* Thu nhỏ cột trái (35%), mở rộng không gian cột phải (65%) */
+    grid-template-columns: 3.5fr 6.5fr; 
     gap: 40px; 
     margin-bottom: 50px;
     align-items: start;
@@ -208,9 +208,44 @@ body {
 }
 .empty-timeline i { font-size: 3rem; margin-bottom: 15px; }
 
-.timeline-header { border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 30px; }
+.timeline-header { padding-bottom: 5px; margin-bottom: 20px; }
 .timeline-header h3 { color: var(--primary-color); font-size: 1.3rem; }
-.timeline-header p { color: var(--text-muted); font-size: 0.95rem; margin-top: 5px; }
+
+/* CSS Mới cho Bảng thông tin chi tiết thiết bị */
+.machine-details-panel {
+    background-color: var(--bg-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px 25px;
+    border: 1px solid var(--border-color);
+}
+
+.info-group span {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.info-group strong {
+    display: block;
+    font-size: 1.05rem;
+    color: var(--text-main);
+    word-break: break-word;
+}
+
+.timeline-title-sub {
+    color: var(--primary-color);
+    font-size: 1.15rem;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px dashed var(--border-color);
+}
+/* Hết CSS Mới */
 
 .timeline-list { position: relative; padding-left: 30px; }
 .timeline-list::before { content: ''; position: absolute; top: 0; left: 11px; width: 2px; height: 100%; background-color: var(--border-color); }

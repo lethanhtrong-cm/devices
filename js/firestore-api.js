@@ -8,13 +8,7 @@ import {
     doc 
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// Import thêm Firebase Storage để upload ảnh
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
-
 const COLLECTION_NAME = 'equipments';
-
-// Khởi tạo Storage an toàn từ đối tượng db.app (không cần sửa firebase-config.js)
-const storage = getStorage(db.app);
 
 // Lấy toàn bộ danh sách thiết bị
 export async function fetchEquipments() {
@@ -66,28 +60,16 @@ export async function removeEquipment(id) {
     }
 }
 
-// --- TÍNH NĂNG MỚI: QUẢN LÝ LỊCH SỬ BẢO TRÌ (SUB-COLLECTION & STORAGE) ---
+// --- QUẢN LÝ LỊCH SỬ BẢO TRÌ (Lưu ảnh Base64 trực tiếp vào Firestore) ---
 
 // Thêm một record bảo trì vào sub-collection của thiết bị
-export async function addMaintenanceRecord(equipId, recordData, imageFile) {
+export async function addMaintenanceRecord(equipId, recordData, imageBase64) {
     try {
-        let imageUrl = null;
-        
-        // Nếu có ảnh, tiến hành upload lên Firebase Storage trước
-        if (imageFile) {
-            const fileExtension = imageFile.name.split('.').pop();
-            const fileName = `maint_${Date.now()}.${fileExtension}`;
-            const storageRef = ref(storage, `maintenance_images/${equipId}/${fileName}`);
-            
-            await uploadBytes(storageRef, imageFile);
-            imageUrl = await getDownloadURL(storageRef);
-        }
-
         // Tạo Document trong sub-collection "maintenance_history"
         const maintCol = collection(db, COLLECTION_NAME, equipId, 'maintenance_history');
         const newRecord = {
             ...recordData,
-            imageUrl: imageUrl,
+            imageUrl: imageBase64 || null, // Lưu trực tiếp chuỗi Base64 thay vì URL của Storage
             createdAt: new Date().toISOString()
         };
         

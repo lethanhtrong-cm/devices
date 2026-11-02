@@ -7,7 +7,8 @@ let currentSelectedEquipId = null;
 let isAppAdmin = false;
 let currentTab = 'all'; // Biến lưu trạng thái Tab hiện tại
 
-const ADMIN_EMAILS = ['phanvantruong@gmail.com']; 
+// BẢO MẬT ADMIN: ĐIỀN EMAIL CỦA BẠN VÀO ĐÂY ĐỂ TRÁNH BỊ NGƯỜI KHÁC SỬA XÓA MÁY. 
+const ADMIN_EMAILS = ['thanhtrong.yds@gmail.com']; 
 
 function initApp() {
     setupEventListeners();
@@ -257,4 +258,3 @@ async function handleDeleteClick(id) {
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
-```<FollowUp> Bạn kiểm tra lại bằng cách ấn vào nút "Sửa" của các thiết bị cũ, phân loại lại Nhóm cho chúng rồi bấm thử các Tab xem mượt mà chưa nhé? </FollowUp>

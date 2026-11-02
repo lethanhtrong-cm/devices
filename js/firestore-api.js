@@ -8,7 +8,15 @@ import {
     doc 
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+// HỖ TRỢ ĐĂNG NHẬP GOOGLE AUTHENTICATION
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
 const COLLECTION_NAME = 'equipments';
+
+// Khởi tạo Firebase Auth từ app hiện tại
+export const auth = getAuth(db.app);
+export const provider = new GoogleAuthProvider();
+export { signInWithPopup, signOut, onAuthStateChanged };
 
 // Lấy toàn bộ danh sách thiết bị
 export async function fetchEquipments() {
@@ -60,16 +68,13 @@ export async function removeEquipment(id) {
     }
 }
 
-// --- QUẢN LÝ LỊCH SỬ BẢO TRÌ (Lưu ảnh Base64 trực tiếp vào Firestore) ---
-
 // Thêm một record bảo trì vào sub-collection của thiết bị
 export async function addMaintenanceRecord(equipId, recordData, imageBase64) {
     try {
-        // Tạo Document trong sub-collection "maintenance_history"
         const maintCol = collection(db, COLLECTION_NAME, equipId, 'maintenance_history');
         const newRecord = {
             ...recordData,
-            imageUrl: imageBase64 || null, // Lưu trực tiếp chuỗi Base64 thay vì URL của Storage
+            imageUrl: imageBase64 || null, 
             createdAt: new Date().toISOString()
         };
         
@@ -91,7 +96,6 @@ export async function fetchMaintenanceRecords(equipId) {
             records.push({ id: doc.id, ...doc.data() });
         });
         
-        // Sắp xếp theo ngày giảm dần (Mới nhất lên đầu)
         return records.sort((a, b) => new Date(b.date) - new Date(a.date));
     } catch (error) {
         console.error("Lỗi khi lấy dữ liệu lịch sử bảo trì: ", error);

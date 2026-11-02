@@ -1,20 +1,47 @@
-import { fetchEquipments, createEquipment, updateEquipmentData, removeEquipment, fetchMaintenanceRecords, addMaintenanceRecord } from './firestore-api.js';
-import { renderDashboard, renderEquipmentList, toggleModal, populateForm, renderTimeline, toggleMaintModal } from './ui-manager.js';
+import { fetchEquipments, createEquipment, updateEquipmentData, removeEquipment, fetchMaintenanceRecords, addMaintenanceRecord, auth, provider, signInWithPopup, signOut, onAuthStateChanged } from './firestore-api.js';
+import { renderDashboard, renderEquipmentList, toggleModal, populateForm, renderTimeline, toggleMaintModal, updateAuthUI } from './ui-manager.js';
 
 let currentEquipments = [];
 let currentSelectedEquipId = null;
+let isAppAdmin = false;
 
-async function initApp() {
-    await loadData();
+// BẢO MẬT ADMIN: ĐIỀN EMAIL CỦA BẠN VÀO ĐÂY ĐỂ TRÁNH BỊ NGƯỜI KHÁC SỬA XÓA MÁY. 
+// VÍ DỤ: const ADMIN_EMAILS = ['phanvantruong@gmail.com', 'admin.khoa@gmail.com'];
+// Nếu để mảng rỗng [], thì MỌI TÀI KHOẢN Google đăng nhập đều có quyền Admin.
+const ADMIN_EMAILS = [];
+
+function initApp() {
     setupEventListeners();
+    
+    // Theo dõi trạng thái đăng nhập tự động
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // Kiểm tra mảng phân quyền
+            if (ADMIN_EMAILS.length === 0 || ADMIN_EMAILS.includes(user.email)) {
+                isAppAdmin = true;
+                updateAuthUI(user);
+            } else {
+                alert("Tài khoản Google này không có quyền Admin!");
+                signOut(auth);
+                isAppAdmin = false;
+                updateAuthUI(null);
+            }
+        } else {
+            isAppAdmin = false;
+            updateAuthUI(null);
+        }
+        // Gọi hàm tải dữ liệu sau khi đã biết user có phải admin hay không
+        loadData(); 
+    });
 }
 
 async function loadData() {
     currentEquipments = await fetchEquipments();
     renderDashboard(currentEquipments);
-    renderEquipmentList(currentEquipments, handleEditClick, handleDeleteClick, handleCardClick);
     
-    // Nếu đang có thẻ được chọn, load lại timeline của thẻ đó. Nếu không, reset timeline.
+    // Truyền biến isAppAdmin vào để ui-manager.js biết có nên vẽ nút Sửa/Xóa không
+    renderEquipmentList(currentEquipments, handleEditClick, handleDeleteClick, handleCardClick, isAppAdmin);
+    
     if (currentSelectedEquipId) {
         handleCardClick(currentSelectedEquipId);
     } else {
@@ -23,15 +50,29 @@ async function loadData() {
 }
 
 function setupEventListeners() {
+    /* --- LOGIN & LOGOUT --- */
+    document.getElementById('btn-login').addEventListener('click', async () => {
+        try {
+            await signInWithPopup(auth, provider);
+        } catch (error) {
+            console.error("Lỗi đăng nhập:", error);
+        }
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+        signOut(auth);
+    });
+
     /* --- SỰ KIỆN CHO MODAL THIẾT BỊ --- */
     document.getElementById('btn-add-new').addEventListener('click', () => {
+        if (!isAppAdmin) return;
         document.getElementById('modal-title').innerText = "Thêm Thiết Bị Mới";
         toggleModal(true);
     });
     document.getElementById('btn-close-modal').addEventListener('click', () => toggleModal(false));
     document.getElementById('equipment-form').addEventListener('submit', handleFormSubmit);
 
-    /* --- SỰ KIỆN CHO MODAL BẢO TRÌ --- */
+    /* --- SỰ KIỆN CHO MODAL BẢO TRÌ (Ai cũng có thể bấm được) --- */
     document.getElementById('btn-add-maint').addEventListener('click', (e) => {
         const equipId = e.currentTarget.getAttribute('data-equip-id');
         toggleMaintModal(true, equipId);
@@ -39,16 +80,18 @@ function setupEventListeners() {
     document.getElementById('btn-close-maint-modal').addEventListener('click', () => toggleMaintModal(false));
     document.getElementById('maint-form').addEventListener('submit', handleMaintSubmit);
 
-    // Đóng modal khi click ra ngoài (Áp dụng chung)
     window.addEventListener('click', (e) => {
         if (e.target === document.getElementById('equipment-modal')) toggleModal(false);
         if (e.target === document.getElementById('maint-modal')) toggleMaintModal(false);
     });
 }
 
-// Submit Form Thiết bị
 async function handleFormSubmit(e) {
     e.preventDefault();
+    if (!isAppAdmin) {
+        alert("Chỉ Admin mới có quyền thực hiện chức năng này!");
+        return;
+    }
     
     const id = document.getElementById('equip-id').value;
     const formData = {
@@ -77,7 +120,6 @@ async function handleFormSubmit(e) {
     }
 }
 
-// Hàm hỗ trợ nén ảnh và chuyển thành Base64 để lưu vào Firestore (tránh giới hạn 1MB)
 function compressImageToBase64(file, maxWidth = 800, quality = 0.7) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -98,8 +140,6 @@ function compressImageToBase64(file, maxWidth = 800, quality = 0.7) {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                
-                // Trả về chuỗi Base64 định dạng JPEG nén
                 resolve(canvas.toDataURL('image/jpeg', quality));
             };
             img.onerror = (error) => reject(error);
@@ -108,7 +148,7 @@ function compressImageToBase64(file, maxWidth = 800, quality = 0.7) {
     });
 }
 
-// Submit Form Thêm Lịch sử Bảo trì
+// Chức năng này công khai (Không cần xét isAppAdmin)
 async function handleMaintSubmit(e) {
     e.preventDefault();
     const btnSubmit = document.getElementById('btn-submit-maint');
@@ -128,48 +168,42 @@ async function handleMaintSubmit(e) {
         btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
         btnSubmit.disabled = true;
 
-        // Nếu có chọn ảnh, tiến hành nén ảnh trước khi lưu
         if (imageInput.files.length > 0) {
             imageBase64 = await compressImageToBase64(imageInput.files[0]);
         }
 
         await addMaintenanceRecord(equipId, recordData, imageBase64);
         
-        // Reset form & UI
         toggleMaintModal(false);
         btnSubmit.innerHTML = originalText;
         btnSubmit.disabled = false;
         
-        // Reload lại riêng phần Timeline của máy đó
         handleCardClick(equipId);
     } catch (error) {
         console.error(error);
-        alert('Lỗi khi lưu lịch sử. Vui lòng kiểm tra lại kết nối mạng.');
+        alert('Lỗi khi lưu lịch sử. Vui lòng kiểm tra lại.');
         btnSubmit.innerHTML = '<i class="fa-solid fa-save"></i> Lưu Lịch Sử';
         btnSubmit.disabled = false;
     }
 }
 
-// Click vào thẻ Card: Tải & hiển thị Timeline chi tiết
 async function handleCardClick(id) {
     currentSelectedEquipId = id;
     const equip = currentEquipments.find(e => e.id === id);
     
     if (equip) {
-        // Render tạm trạng thái Loading (null) cho history
         renderTimeline(equip, null); 
-        
         try {
-            // Lấy dữ liệu động từ sub-collection
             const dynamicHistory = await fetchMaintenanceRecords(id);
             renderTimeline(equip, dynamicHistory);
         } catch (error) {
-            renderTimeline(equip, []); // Nếu lỗi, vẫn render ra form gốc
+            renderTimeline(equip, []);
         }
     }
 }
 
 function handleEditClick(id) {
+    if (!isAppAdmin) return;
     const equip = currentEquipments.find(e => e.id === id);
     if (equip) {
         populateForm(equip);
@@ -178,7 +212,8 @@ function handleEditClick(id) {
 }
 
 async function handleDeleteClick(id) {
-    if (confirm('Bạn có chắc chắn muốn xóa dữ liệu máy này khỏi hệ thống? Hành động này không thể hoàn tác.')) {
+    if (!isAppAdmin) return;
+    if (confirm('Bạn có chắc chắn muốn xóa dữ liệu máy này khỏi hệ thống?')) {
         try {
             await removeEquipment(id);
             if (currentSelectedEquipId === id) currentSelectedEquipId = null;

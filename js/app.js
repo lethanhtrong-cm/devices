@@ -7,7 +7,7 @@ let currentSelectedEquipId = null;
 let isAppAdmin = false;
 let currentTab = 'all'; // Biến lưu trạng thái Tab hiện tại
 
-const ADMIN_EMAILS = ['thanhtrong.yds@gmail.com']; 
+const ADMIN_EMAILS = ['phanvantruong@gmail.com']; 
 
 function initApp() {
     setupEventListeners();

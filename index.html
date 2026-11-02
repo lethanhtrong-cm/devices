@@ -13,13 +13,11 @@
             <h1><i class="fa-solid fa-notes-medical"></i> Quản Lý Thiết Bị Vật Tư Y Tế</h1>
             
             <div class="header-actions">
-                <!-- Vùng hiển thị User Info khi đã đăng nhập -->
                 <div id="user-info" class="user-info hidden">
                     <img id="user-avatar" src="" alt="Avatar">
                     <span id="user-name">Admin</span>
                     <button id="btn-logout" class="btn btn-outline" title="Đăng Xuất"><i class="fa-solid fa-sign-out-alt"></i></button>
                 </div>
-                <!-- Nút Đăng nhập Google -->
                 <button id="btn-login" class="btn btn-outline"><i class="fa-brands fa-google"></i> Đăng Nhập</button>
                 
                 <button id="btn-add-new" class="btn btn-primary hidden"><i class="fa-solid fa-plus"></i> Thêm Thiết Bị Mới</button>
@@ -154,13 +152,15 @@
         </div>
     </div>
 
-    <!-- Modal Thêm Lịch Sử Bảo Trì Mới -->
+    <!-- Modal Thêm/Sửa Lịch Sử Bảo Trì -->
     <div id="maint-modal" class="modal hidden">
         <div class="modal-content" style="max-width: 500px;">
             <span class="close-btn" id="btn-close-maint-modal">&times;</span>
-            <h2>Thêm Lịch Sử Sửa Chữa</h2>
+            <h2 id="maint-modal-title">Thêm Lịch Sử Sửa Chữa</h2>
             <form id="maint-form">
                 <input type="hidden" id="maint-equip-id">
+                <input type="hidden" id="maint-record-id">
+                <input type="hidden" id="maint-existing-image">
                 
                 <div class="form-group">
                     <label for="maint-date">Ngày thực hiện</label>
@@ -178,8 +178,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="maint-image">Đính kèm hình ảnh (Tùy chọn)</label>
+                    <label for="maint-image">Đính kèm/Thay đổi hình ảnh (Tùy chọn)</label>
                     <input type="file" id="maint-image" accept="image/*">
+                </div>
+
+                <!-- Vùng hiển thị ảnh cũ nếu đang ở chế độ Edit -->
+                <div id="maint-current-image-container" class="hidden" style="margin-bottom: 15px; padding: 10px; border: 1px solid #edf2f4; border-radius: 8px;">
+                    <span style="font-size: 0.85rem; color: #8d99ae; display: block; margin-bottom: 5px;">Ảnh đính kèm hiện tại:</span>
+                    <div style="display: flex; align-items: flex-end; gap: 10px;">
+                        <img id="maint-current-image" src="" alt="Ảnh cũ" style="max-height: 80px; border-radius: 4px;">
+                        <button type="button" id="btn-remove-maint-image" class="btn btn-outline" style="padding: 5px 10px; font-size: 0.8rem; color: #e76f51;"><i class="fa-solid fa-trash-can"></i> Xóa ảnh này</button>
+                    </div>
                 </div>
 
                 <button type="submit" id="btn-submit-maint" class="btn btn-primary btn-submit"><i class="fa-solid fa-save"></i> Lưu Lịch Sử</button>

@@ -34,11 +34,16 @@ export function renderEquipmentList(equipments, onEdit, onDelete, onCardClick, i
         card.className = 'equip-card';
         card.setAttribute('data-id', equip.id);
         
+        // Chuyển đổi key nhóm sang text hiển thị đẹp
+        const catMap = { 'mri': 'Nhóm MRI', 'ct': 'Nhóm CT', 'xquang': 'Nhóm X-Quang', 'other': 'Nhóm Khác' };
+        const catText = catMap[equip.category] || 'Nhóm Khác';
+
         let cardHTML = `
             <div class="equip-status-badge ${statusDisplay.class}">${statusDisplay.text}</div>
             <h3>${equip.name}</h3>
             <p class="equip-model">${equip.brand} - Model: ${equip.model}</p>
             <ul class="equip-details">
+                <li><strong>Phân nhóm:</strong> <span style="font-weight: 700; color: var(--primary-color);">${catText}</span></li>
                 <li><strong>Serial:</strong> <span>${equip.serial}</span></li>
                 <li><strong>Năm SX:</strong> <span>${equip.year}</span></li>
             </ul>

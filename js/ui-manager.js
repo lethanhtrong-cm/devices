@@ -1,3 +1,4 @@
+// Hàm chuyển đổi key trạng thái sang Text và Label hiển thị
 function getStatusDisplay(statusKey) {
     const statusMap = {
         'hoat_dong': { text: 'Hoạt động tốt', class: 'badge-hoat_dong' },
@@ -72,7 +73,7 @@ export function renderEquipmentList(equipments, onEdit, onDelete, onCardClick) {
     });
 }
 
-// Vẽ Timeline kết hợp dữ liệu tĩnh (từ form thiết bị) và dữ liệu động (từ sub-collection)
+// Vẽ Timeline kết hợp hiển thị thông tin máy ở phía trên
 export function renderTimeline(equipment, dynamicRecords = []) {
     const container = document.getElementById('timeline-container');
     const btnAddMaint = document.getElementById('btn-add-maint');
@@ -91,11 +92,42 @@ export function renderTimeline(equipment, dynamicRecords = []) {
     btnAddMaint.classList.remove('hidden');
     btnAddMaint.setAttribute('data-equip-id', equipment.id);
 
+    const statusDisplay = getStatusDisplay(equipment.status);
+
+    // Xây dựng Panel chứa thông tin chi tiết máy
     let html = `
         <div class="timeline-header">
-            <h3>Lịch Sử Bảo Trì: ${equipment.name}</h3>
-            <p>Hãng SX: ${equipment.brand} | Model: ${equipment.model}</p>
+            <h3 style="margin-bottom: 10px;"><i class="fa-solid fa-display"></i> Thông Tin Chi Tiết: ${equipment.name}</h3>
+            
+            <div class="machine-details-panel">
+                <div class="info-group">
+                    <span>Hãng sản xuất</span>
+                    <strong>${equipment.brand}</strong>
+                </div>
+                <div class="info-group">
+                    <span>Model</span>
+                    <strong>${equipment.model}</strong>
+                </div>
+                <div class="info-group">
+                    <span>Số Serial</span>
+                    <strong>${equipment.serial}</strong>
+                </div>
+                <div class="info-group">
+                    <span>Năm sản xuất</span>
+                    <strong>${equipment.year}</strong>
+                </div>
+                <div class="info-group">
+                    <span>Ngày lắp đặt</span>
+                    <strong>${formatDate(equipment.installDate) || 'Chưa cập nhật'}</strong>
+                </div>
+                <div class="info-group">
+                    <span>Tình trạng hiện tại</span>
+                    <strong class="${statusDisplay.class}" style="padding: 3px 10px; border-radius: 12px; color: #fff; font-size: 0.8rem; display: inline-block; margin-top: 3px;">${statusDisplay.text}</strong>
+                </div>
+            </div>
         </div>
+        
+        <h3 class="timeline-title-sub"><i class="fa-solid fa-clock-rotate-left"></i> Dòng Thời Gian Sửa Chữa & Bảo Trì</h3>
         <div class="timeline-list">
     `;
 
@@ -155,7 +187,7 @@ function generateTimelineItemNode(dateRaw, title, desc, iconClass, colorClass, i
     `;
 }
 
-// Modal thiết bị (Cũ)
+// Modal thiết bị 
 export function toggleModal(show) {
     const modal = document.getElementById('equipment-modal');
     if (show) {
@@ -167,13 +199,11 @@ export function toggleModal(show) {
     }
 }
 
-// Modal thêm lịch sử bảo trì (Mới)
+// Modal thêm lịch sử bảo trì 
 export function toggleMaintModal(show, equipId = '') {
     const modal = document.getElementById('maint-modal');
     if (show) {
         document.getElementById('maint-equip-id').value = equipId;
-        
-        // Gợi ý ngày hôm nay làm mặc định
         document.getElementById('maint-date').value = new Date().toISOString().split('T')[0];
         modal.classList.remove('hidden');
     } else {

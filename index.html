@@ -60,6 +60,16 @@
         <section class="workspace-layout">
             <div class="left-column">
                 <h2 class="section-title"><i class="fa-solid fa-list"></i> Danh Sách Thiết Bị</h2>
+                
+                <!-- Thanh Tabs Phân Nhóm -->
+                <div class="equipment-tabs">
+                    <button class="tab-btn active" data-tab="all">Tất cả</button>
+                    <button class="tab-btn" data-tab="mri">Nhóm MRI</button>
+                    <button class="tab-btn" data-tab="ct">Nhóm CT</button>
+                    <button class="tab-btn" data-tab="xquang">Nhóm X-Quang</button>
+                    <button class="tab-btn" data-tab="other">Khác</button>
+                </div>
+
                 <div id="equipment-grid" class="equipment-grid">
                     <div class="loading-text">Đang tải dữ liệu từ máy chủ...</div>
                 </div>
@@ -89,9 +99,20 @@
             <form id="equipment-form">
                 <input type="hidden" id="equip-id">
                 
-                <div class="form-group">
-                    <label for="equip-name">Tên thiết bị (VD: Máy CT Scanner 128 dãy)</label>
-                    <input type="text" id="equip-name" required>
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="equip-name">Tên thiết bị (VD: Máy CT Scanner 128 dãy)</label>
+                        <input type="text" id="equip-name" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="equip-category">Thuộc nhóm</label>
+                        <select id="equip-category" required>
+                            <option value="mri">Nhóm MRI</option>
+                            <option value="ct">Nhóm CT</option>
+                            <option value="xquang">Nhóm X-Quang</option>
+                            <option value="other" selected>Khác</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div class="form-row">
@@ -195,7 +216,7 @@
         </div>
     </div>
 
-    <!-- Modal Phóng to Ảnh (Image Lightbox) -->
+    <!-- Modal Phóng to Ảnh -->
     <div id="image-modal" class="modal hidden" style="background-color: rgba(0,0,0,0.85); padding: 0;">
         <span class="close-btn" id="btn-close-image" style="color: white; font-size: 2.5rem; top: 15px; right: 25px;">&times;</span>
         <img id="zoomed-image" src="" alt="Ảnh phóng to" class="zoomed-image-style">

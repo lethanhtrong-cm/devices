@@ -8,7 +8,7 @@ let isAppAdmin = false;
 // BẢO MẬT ADMIN: ĐIỀN EMAIL CỦA BẠN VÀO ĐÂY ĐỂ TRÁNH BỊ NGƯỜI KHÁC SỬA XÓA MÁY. 
 // VÍ DỤ: const ADMIN_EMAILS = ['phanvantruong@gmail.com', 'admin.khoa@gmail.com'];
 // Nếu để mảng rỗng [], thì MỌI TÀI KHOẢN Google đăng nhập đều có quyền Admin.
-const ADMIN_EMAILS = [];
+const ADMIN_EMAILS = ['thanhtrong.yds@gmail.com'];
 
 function initApp() {
     setupEventListeners();

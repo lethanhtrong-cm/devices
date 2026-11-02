@@ -11,12 +11,23 @@
     <header class="app-header">
         <div class="container header-content">
             <h1><i class="fa-solid fa-notes-medical"></i> Quản Lý Thiết Bị Vật Tư Y Tế</h1>
-            <button id="btn-add-new" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Thêm Thiết Bị Mới</button>
+            
+            <div class="header-actions">
+                <!-- Vùng hiển thị User Info khi đã đăng nhập -->
+                <div id="user-info" class="user-info hidden">
+                    <img id="user-avatar" src="" alt="Avatar">
+                    <span id="user-name">Admin</span>
+                    <button id="btn-logout" class="btn btn-outline" title="Đăng Xuất"><i class="fa-solid fa-sign-out-alt"></i></button>
+                </div>
+                <!-- Nút Đăng nhập Google -->
+                <button id="btn-login" class="btn btn-outline"><i class="fa-brands fa-google"></i> Đăng Nhập</button>
+                
+                <button id="btn-add-new" class="btn btn-primary hidden"><i class="fa-solid fa-plus"></i> Thêm Thiết Bị Mới</button>
+            </div>
         </div>
     </header>
 
     <main class="container">
-        <!-- Dashboard Thống Kê -->
         <section class="dashboard">
             <div class="stat-card total">
                 <div class="stat-icon"><i class="fa-solid fa-microchip"></i></div>
@@ -48,9 +59,7 @@
             </div>
         </section>
 
-        <!-- Không gian làm việc chính: Chia 2 cột -->
         <section class="workspace-layout">
-            <!-- Cột trái: Danh sách thiết bị -->
             <div class="left-column">
                 <h2 class="section-title"><i class="fa-solid fa-list"></i> Danh Sách Thiết Bị</h2>
                 <div id="equipment-grid" class="equipment-grid">
@@ -58,7 +67,6 @@
                 </div>
             </div>
 
-            <!-- Cột phải: Timeline hiển thị chi tiết -->
             <div class="right-column">
                 <div class="timeline-header-actions">
                     <h2 class="section-title" style="margin-bottom: 0;"><i class="fa-solid fa-timeline"></i> Lịch Sử Sửa Chữa & Bảo Trì</h2>
@@ -66,7 +74,6 @@
                 </div>
                 
                 <div id="timeline-container" class="timeline-container">
-                    <!-- Trạng thái trống (Empty State) -->
                     <div class="empty-timeline">
                         <i class="fa-regular fa-hand-pointer"></i>
                         <p>Nhấp vào một thiết bị ở danh sách bên trái để xem chi tiết lịch sử bảo trì.</p>
@@ -76,7 +83,7 @@
         </section>
     </main>
 
-    <!-- Modal Thêm/Sửa Thiết Bị Cũ -->
+    <!-- Modal Thêm/Sửa Thiết Bị -->
     <div id="equipment-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-btn" id="btn-close-modal">&times;</span>

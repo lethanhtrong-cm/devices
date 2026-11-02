@@ -182,7 +182,6 @@
                     <input type="file" id="maint-image" accept="image/*">
                 </div>
 
-                <!-- Vùng hiển thị ảnh cũ nếu đang ở chế độ Edit -->
                 <div id="maint-current-image-container" class="hidden" style="margin-bottom: 15px; padding: 10px; border: 1px solid #edf2f4; border-radius: 8px;">
                     <span style="font-size: 0.85rem; color: #8d99ae; display: block; margin-bottom: 5px;">Ảnh đính kèm hiện tại:</span>
                     <div style="display: flex; align-items: flex-end; gap: 10px;">
@@ -194,6 +193,12 @@
                 <button type="submit" id="btn-submit-maint" class="btn btn-primary btn-submit"><i class="fa-solid fa-save"></i> Lưu Lịch Sử</button>
             </form>
         </div>
+    </div>
+
+    <!-- Modal Phóng to Ảnh (Image Lightbox) -->
+    <div id="image-modal" class="modal hidden" style="background-color: rgba(0,0,0,0.85); padding: 0;">
+        <span class="close-btn" id="btn-close-image" style="color: white; font-size: 2.5rem; top: 15px; right: 25px;">&times;</span>
+        <img id="zoomed-image" src="" alt="Ảnh phóng to" class="zoomed-image-style">
     </div>
 
     <script type="module" src="js/app.js"></script>

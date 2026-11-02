@@ -24,7 +24,7 @@ export function renderEquipmentList(equipments, onEdit, onDelete, onCardClick, i
     grid.innerHTML = ''; 
 
     if (equipments.length === 0) {
-        grid.innerHTML = '<div class="loading-text">Chưa có thiết bị nào trong cơ sở dữ liệu.</div>';
+        grid.innerHTML = '<div class="loading-text">Chưa có thiết bị nào trong danh mục này.</div>';
         return;
     }
 
@@ -122,7 +122,6 @@ export function renderTimeline(equipment, dynamicRecords = [], isAdmin = false) 
     if (dynamicRecords === null) {
         html += `<div style="text-align:center; padding: 20px;"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu lịch sử...</div>`;
     } else {
-        // Truyền thêm isAdmin và record.id vào hàm tạo node
         dynamicRecords.forEach(record => {
             html += generateTimelineItemNode(record.date, record.title, record.notes, 'fa-wrench', 'icon-warning', record.imageUrl, record.id, isAdmin);
         });
@@ -141,7 +140,6 @@ function generateTimelineItemNode(dateRaw, title, desc, iconClass, colorClass, i
     let imageHtml = '';
     if (imageUrl) { imageHtml = `<img src="${imageUrl}" class="timeline-image-preview" alt="Ảnh bảo trì">`; }
     
-    // Nếu là Admin và đây là record động thì mới hiện nút Edit/Delete
     let actionHtml = '';
     if (recordId && isAdmin) {
         actionHtml = `
@@ -174,10 +172,10 @@ export function toggleModal(show) {
         modal.classList.add('hidden');
         document.getElementById('equipment-form').reset();
         document.getElementById('equip-id').value = '';
+        document.getElementById('equip-category').value = 'other';
     }
 }
 
-// Bổ sung tham số record để tự động fill data khi Admin bấm "Sửa"
 export function toggleMaintModal(show, equipId = '', record = null) {
     const modal = document.getElementById('maint-modal');
     const imgContainer = document.getElementById('maint-current-image-container');
@@ -220,6 +218,10 @@ export function toggleMaintModal(show, equipId = '', record = null) {
 export function populateForm(equipment) {
     document.getElementById('equip-id').value = equipment.id;
     document.getElementById('equip-name').value = equipment.name;
+    
+    // Nếu máy cũ chưa có category thì gán vào "Khác"
+    document.getElementById('equip-category').value = equipment.category || 'other'; 
+    
     document.getElementById('equip-model').value = equipment.model;
     document.getElementById('equip-brand').value = equipment.brand;
     document.getElementById('equip-serial').value = equipment.serial;
